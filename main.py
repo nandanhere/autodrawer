@@ -18,6 +18,10 @@ tk.Label(firstWindow, text="how many colors are there in a row?(default is 11 fo
 tk.Label(firstWindow, text="how big do you want it? (default is 200x200)", padx=5).grid(row=4)
 # following will keep donald duck as default. if clicked on it it will allow to change it,ie it clears the input
 firstclick = True
+def exitprogram():
+    if "/sample.jpeg" not in imageLoc:
+            os.remove(imageLoc)
+    sys.exit()
 def on_entry_click(event):
     # function that gets called whenever imageWord entry is clicked        
     global firstclick
@@ -34,6 +38,7 @@ imageWord.grid(row=1); colorsOptions.grid(row = 3); sizeOptions.grid(row = 5)
 word = 'Donald duck' # what Autodrawer will draw
 nosOfColors = options1[10] # whether it is in paint or in skribbl
 dimension = options2[1] # either 100x100, 200x200,300x300
+firstWindow.protocol("WM_DELETE_WINDOW",exitprogram)
 def updateInput():
     global word, nosOfColors, dimension
     word = imageWord.get()
@@ -60,7 +65,7 @@ except:
     imageLoc = sys.path[0] + "/sample.jpeg"
 # ----------Portion of code that downloads the image and saves it in PWD---------------END
 
-# ----------Final dialog window in case user wants to quit---------------START
+# ----------Final dialog window to start the drawing---------------START
 clickCount = -1
 secondWindow = tk.Tk()
 secondWindow.geometry("600x50")
@@ -71,16 +76,13 @@ def proceed(choice):
         secondWindow.destroy()
         global clickCount
         clickCount += 1
-    else:
-        if "/sample.jpeg" not in imageLoc:
-            os.remove(imageLoc)
-        sys.exit()
 b = tk.Button(text="Ok",command=lambda: proceed(True)).grid(row=1,column=0)
-c = tk.Button(text="Cancel",command=lambda:proceed(False))
+c = tk.Button(text="Cancel",command=exitprogram)
 c.grid(row=1,column=1)
 c.place(relx=0.6,rely=0.45)
+secondWindow.protocol("WM_DELETE_WINDOW",exitprogram)
 secondWindow.mainloop()
-# ----------Final dialog window in case user wants to quit---------------END
+# ----------Final dialog window to start the drawing---------------END
 
 # ----------Portion of code that captures the clicks---------------START
 (w_x,w_y) = (0,0)
@@ -97,7 +99,7 @@ def getTheClicks(x, y, button, pressed):
         if clickCount == 2:
             (s_x,s_y) = (x,y)
             listener.stop()
-sf = lambda x,y,z,e:print("{},{}".format(x,y))
+# sf = lambda x,y,z,e:print("{},{}".format(x,y))
 listener = mouse.Listener(on_click=getTheClicks)
 # Click 1 : get the location of the first color from the top left.
 # Click 2 : get the location of the start point to draw
@@ -173,7 +175,7 @@ for i in range(0,len(mat),1):
 # ----------Loop where painting will happen---------------START
 for i in range(len(colortable)):
     if i == 1:
-        print(colorvalues[i])
+        # print(colorvalues[i])
         continue
     pg.click(colortable[i])
     (a,b,c) = colorvalues[i]
