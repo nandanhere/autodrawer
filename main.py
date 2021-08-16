@@ -9,6 +9,7 @@ from PIL import Image
 from google_images_download import google_images_download
 pg.PAUSE = 0 # change to appropriate seconds for speeed. we keep it 0 for fast drawing
 # Top level window
+imageLoc = "/sample.jpeg"
 # ----------Portion of code that gets the input---------------START
 firstWindow = tk.Tk()
 firstWindow.title("Autodrawer")
@@ -137,11 +138,13 @@ def alpha_to_color(image, color=(255, 255, 255)):
     x = numpy.dstack([r, g, b, a])
     return Image.fromarray(x, 'RGBA')
 img = Image.open(imageLoc)
+copy = img
 img = img.resize((dimension,dimension))
 palette = Image.new("P",(16,16))
 palette.putpalette(pal)
 img = img.convert("RGB").quantize(palette=palette)
 img = img.convert("RGB")
+
 img.save(imageLoc)
 # ----------Image processing bit---------------STOP
 
@@ -190,6 +193,8 @@ for i in range(len(colortable)):
 beepy.beep(5)
 if "/sample.jpeg" not in imageLoc:
     os.remove(imageLoc)
+else:
+    copy.save(imageLoc)
 os.remove('tempAutodrawer.png')
  
 
