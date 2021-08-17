@@ -122,7 +122,8 @@ colortable = []
 colorvalues = []
 for i in range(nosOfColors):
     colortable.append((int(w_x + 25 * i),int(w_y)))
-    colorvalues.append(im.getpixel(colortable[-1])[:-1]) #type: ignore
+    pixel = im.getpixel(colortable[-1])                 #type: ignore
+    colorvalues.append(pixel[:-1] if len(pixel) > 3  else pixel) #type: ignore
 for i in range(nosOfColors):
     colortable.append((int(w_x + 25 * i),int(w_y + 30)))
     pixel = im.getpixel(colortable[-1])                 #type: ignore
