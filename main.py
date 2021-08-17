@@ -14,9 +14,9 @@ imageLoc = ""
 firstWindow = tk.Tk()
 firstWindow.title("Autodrawer")
 firstWindow.geometry("600x150")
-tk.Label(firstWindow, text="Enter the thing to be drawn (default is donald duck)", padx=5).grid(row = 0)
-tk.Label(firstWindow, text="how many colors are there in a row?(default is 11 for skribbl)", padx=5).grid(row=2)
-tk.Label(firstWindow, text="how big do you want it? (default is 200x200)", padx=5).grid(row=4)
+l1 = tk.Label(firstWindow, text="Enter the thing to be drawn (default is donald duck)", padx=5); l1.grid(row = 0)
+l2 = tk.Label(firstWindow, text="how many colors are there in a row?(default is 11 for skribbl)", padx=5);l2.grid(row=2)
+l3 = tk.Label(firstWindow, text="how big do you want it? (default is 200x200)", padx=5);l3.grid(row=4)
 # following will keep donald duck as default. if clicked on it it will allow to change it,ie it clears the input
 firstclick = True
 def exitprogram():
@@ -40,27 +40,34 @@ word = 'Donald duck' # what Autodrawer will draw
 nosOfColors = options1[10] # whether it is in paint or in skribbl
 dimension = options2[1] # either 100x100, 200x200,300x300
 firstWindow.protocol("WM_DELETE_WINDOW",exitprogram)
+
 def updateInput():
     global word, nosOfColors, dimension
     word = imageWord.get()
     nosOfColors = int(variable1.get())
     dimension = int(variable2.get())
-    firstWindow.destroy()
+    for w in [imageWord,colorsOptions,sizeOptions,l1,l2,l3]:
+        w.destroy()
+    button_1.place(relx=-100, rely=-100, anchor=tk.CENTER) 
+    getImage()
+    updateWindow()
 button_1 = TkinterCustomButton(text="Click to start!", corner_radius=10, command=updateInput)
 button_1.place(relx=0.85, rely=0.5, anchor=tk.CENTER)  
+
 # Label Creation
-firstWindow.mainloop()
 # ----------Portion of code that gets the input---------------END
 
 # ----------Portion of code that downloads the image and saves it in PWD---------------START
-response = google_images_download.googleimagesdownload()
-arguments = {"keywords": word, "limit":1, "print_urls":True, 'safe_search':True, 'exact_size':'{},{}'.format(dimension,dimension), 'type': 'clipart', 'format': 'jpg','no_directory' : True}
-imageLoc = ""
-try:
-    if 'Donald Duck' in word: raise Exception()
-    paths = response.download(arguments)
-    imageLoc = paths[0][word][0]
-except:
+def getImage():
+    global imageLoc
+    response = google_images_download.googleimagesdownload()
+    arguments = {"keywords": word, "limit":1, "print_urls":True, 'safe_search':True, 'exact_size':'{},{}'.format(dimension,dimension), 'type': 'clipart', 'format': 'jpg','no_directory' : True}
+    imageLoc = ""
+    try:
+        if 'Donald Duck' in word: raise Exception()
+        paths = response.download(arguments)
+        imageLoc = paths[0][word][0]
+    except:
         imageLoc = sys.path[0] + '/sample.jpeg'
         shutil.copyfile(imageLoc,sys.path[0] + '/image.jpeg')
         imageLoc = sys.path[0] + '/image.jpeg'
@@ -68,21 +75,21 @@ except:
 
 # ----------Final dialog window to start the drawing---------------START
 clickCount = -1
-secondWindow = tk.Tk()
-secondWindow.geometry("600x50")
-secondWindow.title("Autodrawer")
-a = tk.Label(secondWindow, text="Click on the location of the first color from the top left, then the location to start drawing from", padx=5).grid(row = 0)
 def proceed(choice):
     if choice:
-        secondWindow.destroy()
+        firstWindow.destroy()
         global clickCount
         clickCount += 1
-b = tk.Button(text="Ok",command=lambda: proceed(True)).grid(row=1,column=0)
-c = tk.Button(text="Cancel",command=exitprogram)
-c.grid(row=1,column=1)
-c.place(relx=0.6,rely=0.45)
-secondWindow.protocol("WM_DELETE_WINDOW",exitprogram)
-secondWindow.mainloop()
+def updateWindow(): 
+    firstWindow.geometry("600x50")
+    firstWindow.title("Autodrawer")
+    a = tk.Label(firstWindow, text="Click on the location of the first color from the top left, then the location to start drawing from", padx=5).grid(row = 0)
+    b = tk.Button(text="Ok",command=lambda: proceed(True)).grid(row=1,column=0)
+    c = tk.Button(text="Cancel",command=exitprogram)
+    c.grid(row=1,column=1)
+    c.place(relx=0.6,rely=0.45)
+firstWindow.protocol("WM_DELETE_WINDOW",exitprogram)
+firstWindow.mainloop()
 # ----------Final dialog window to start the drawing---------------END
 
 # ----------Portion of code that captures the clicks---------------START
@@ -177,6 +184,7 @@ for i in range(0,len(mat),1):
 # ----------Converting the image into a matrix of pixel values---------------STOP
 
 # ----------Loop where painting will happen---------------START
+# TODO make a way for the user to exit the loop with a keypress
 for i in range(len(colortable)):
     if i == 1:
         # print(colorvalues[i])
