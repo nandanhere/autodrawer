@@ -1,6 +1,6 @@
 # Autodrawer - inspired by https://github.com/TheNova22/skribbot, with some GUI added
 # tkintercustombutton from https://github.com/TomSchimansky/GuitarTuner/blob/master/documentation/tkinter_custom_button.py
-import sys,os,beepy,numpy
+import sys,os,beepy,numpy,shutil
 import tkinter as tk
 from tkinter_custom_button import TkinterCustomButton 
 import pyautogui as pg
@@ -9,7 +9,7 @@ from PIL import Image
 from google_images_download import google_images_download
 pg.PAUSE = 0 # change to appropriate seconds for speeed. we keep it 0 for fast drawing
 # Top level window
-imageLoc = "/sample.jpeg"
+imageLoc = ""
 # ----------Portion of code that gets the input---------------START
 firstWindow = tk.Tk()
 firstWindow.title("Autodrawer")
@@ -20,7 +20,7 @@ tk.Label(firstWindow, text="how big do you want it? (default is 200x200)", padx=
 # following will keep donald duck as default. if clicked on it it will allow to change it,ie it clears the input
 firstclick = True
 def exitprogram():
-    if "/sample.jpeg" not in imageLoc:
+    if len(imageLoc) != 0:
             os.remove(imageLoc)
     sys.exit()
 def on_entry_click(event):
@@ -57,13 +57,13 @@ response = google_images_download.googleimagesdownload()
 arguments = {"keywords": word, "limit":1, "print_urls":True, 'safe_search':True, 'exact_size':'{},{}'.format(dimension,dimension), 'type': 'clipart', 'format': 'jpg','no_directory' : True}
 imageLoc = ""
 try:
-    if 'Donald Duck' in word:
-        imageLoc = sys.path[0] + '/sample.jpeg'
-    else:
-        paths = response.download(arguments)
-        imageLoc = paths[0][word][0]
+    if 'Donald Duck' in word: raise Exception()
+    paths = response.download(arguments)
+    imageLoc = paths[0][word][0]
 except:
-    imageLoc = sys.path[0] + "/sample.jpeg"
+        imageLoc = sys.path[0] + '/sample.jpeg'
+        shutil.copyfile(imageLoc,sys.path[0] + '/image.jpeg')
+        imageLoc = sys.path[0] + '/image.jpeg'
 # ----------Portion of code that downloads the image and saves it in PWD---------------END
 
 # ----------Final dialog window to start the drawing---------------START
@@ -118,7 +118,8 @@ for i in range(nosOfColors):
     colorvalues.append(im.getpixel(colortable[-1])[:-1]) #type: ignore
 for i in range(nosOfColors):
     colortable.append((int(w_x + 25 * i),int(w_y + 30)))
-    colorvalues.append(im.getpixel(colortable[-1])[:-1]) #type: ignore
+    pixel = im.getpixel(colortable[-1])                 #type: ignore
+    colorvalues.append(pixel[:-1] if len(pixel) > 3  else pixel) #type: ignore
 pal = []
 for pixel in colorvalues:
     pal += list(pixel)
@@ -138,7 +139,7 @@ def alpha_to_color(image, color=(255, 255, 255)):
     x = numpy.dstack([r, g, b, a])
     return Image.fromarray(x, 'RGBA')
 img = Image.open(imageLoc)
-copy = img
+copy = Image.open(imageLoc)
 img = img.resize((dimension,dimension))
 palette = Image.new("P",(16,16))
 palette.putpalette(pal)
@@ -193,8 +194,6 @@ for i in range(len(colortable)):
 beepy.beep(5)
 if "/sample.jpeg" not in imageLoc:
     os.remove(imageLoc)
-else:
-    copy.save(imageLoc)
 os.remove('tempAutodrawer.png')
  
 
